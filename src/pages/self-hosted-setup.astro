@@ -137,6 +137,11 @@ const configGroups: { title: string; description: string; options: ConfigOption[
         example: 'true',
       },
       {
+        key: 'SCANNER_USER_AGENT',
+        info: 'User-Agent sent to scanned sites, for WAF allowlisting',
+        example: 'web-check-scanner/1.0',
+      },
+      {
         key: 'API_BLOCKED_HOSTS',
         info: 'Hosts, IPs or CIDR ranges that must never be scanned',
         example: 'lan.example.com,192.168.0.0/16',

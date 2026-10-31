@@ -66,9 +66,15 @@ const wrapNetworkError = (error) => {
 };
 
 // A current desktop Chrome user agent, so basic bot checks treat requests like a browser's
-export const UA =
+const BROWSER_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) ' +
   'Chrome/154.0.0.0 Safari/537.36';
+
+// SCANNER_USER_AGENT lets a site's WAF recognise and allowlist this instance's requests
+export const SCANNER_UA = process.env.SCANNER_USER_AGENT?.trim() || null;
+
+// User agent for requests to the target site
+export const UA = SCANNER_UA || BROWSER_UA;
 
 // Our own user agent, for APIs and files meant for tools, which ask clients to say who they are
 export const APP_UA = 'web-check (+https://web-check.xyz)';

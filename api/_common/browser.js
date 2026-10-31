@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer-core';
 import sparticuz from '@sparticuz/chromium';
+import { SCANNER_UA } from './http.js';
 
 export const chromium = sparticuz.default || sparticuz;
 
@@ -25,10 +26,10 @@ export const launchBrowser = async (options = {}) =>
     ...options,
   });
 
-// Open a page that reports the browser's own user agent, minus the HeadlessChrome giveaway
+// Open a page with SCANNER_USER_AGENT, or the browser's own user agent minus the HeadlessChrome giveaway
 export const openPage = async (browser) => {
   const page = await browser.newPage();
-  const userAgent = (await browser.userAgent()).replace('HeadlessChrome', 'Chrome');
+  const userAgent = SCANNER_UA || (await browser.userAgent()).replace('HeadlessChrome', 'Chrome');
   await page.setUserAgent({ userAgent });
   return page;
 };
