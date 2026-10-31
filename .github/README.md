@@ -182,22 +182,29 @@ But there are some optional environmental variables that you can set to give you
 
 **Configuration Settings**:
 
-| Key                        | Value                                                                                               |
-| -------------------------- | --------------------------------------------------------------------------------------------------- |
-| `PORT`                     | Port to serve the API, when running server.js (e.g. `3000`)                                         |
-| `API_ENABLE_RATE_LIMIT`    | Enable rate-limiting for the /api endpoints (e.g. `true`)                                           |
-| `PUBLIC_API_TIMEOUT_LIMIT` | The timeout limit for API requests, in milliseconds (e.g. `25000`)                                  |
-| `API_CORS_ORIGIN`          | Enable CORS, by setting your allowed hostname(s) here (e.g. `example.com`)                          |
-| `API_DISABLED_CHECKS`      | Comma-separated list of checks to disable (e.g. `trace-route,ports`)                                |
-| `API_ENABLED_CHECKS`       | If set, only these checks will run (e.g. `get-ip,ssl,dns,headers`)                                  |
-| `API_BLOCKED_HOSTS`        | Hosts that must never be scanned (e.g. `lan.example.com,192.168.0.0/16`)                            |
-| `API_ALLOW_ACTIVE_CHECKS`  | Set to `true` to enable intrusive checks (`nmap`, `exposed-files`, `http-methods`, `zone-transfer`) |
-| `SCANNER_USER_AGENT`       | Custom User-Agent sent to scanned sites, so their WAF can allowlist this instance                   |
-| `CHROME_PATH`              | The path the Chromium executable (e.g. `/usr/bin/chromium`)                                         |
-| `DISABLE_GUI`              | Disable the GUI, and only serve the API (e.g. `false`)                                              |
-| `PUBLIC_API_ENDPOINT`      | The endpoint for the API, either local or remote (e.g. `/api`)                                      |
+| Key                        | Value                                                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `PORT`                     | Port to serve the API, when running server.js (e.g. `3000`)                                                |
+| `API_ENABLE_RATE_LIMIT`    | Enable rate-limiting for the /api endpoints (e.g. `true`)                                                  |
+| `PUBLIC_API_TIMEOUT_LIMIT` | The timeout limit for API requests, in milliseconds (e.g. `25000`)                                         |
+| `API_CORS_ORIGIN`          | Enable CORS, by setting your allowed hostname(s) here (e.g. `example.com`)                                 |
+| `API_DISABLED_CHECKS`      | Comma-separated list of checks to disable (e.g. `trace-route,ports`)                                       |
+| `API_ENABLED_CHECKS`       | If set, only these checks will run (e.g. `get-ip,ssl,dns,headers`)                                         |
+| `API_BLOCKED_HOSTS`        | Hosts that must never be scanned (e.g. `lan.example.com,192.168.0.0/16`)                                   |
+| `API_ALLOW_ACTIVE_CHECKS`  | Set to `true` to enable intrusive checks (`nmap`, `exposed-files`, `http-methods`, `zone-transfer`)        |
+| `SCANNER_USER_AGENT`       | Custom User-Agent sent to scanned sites, so their WAF can allowlist this instance                          |
+| `LEAK_INTERNAL_HOSTS`      | Hostname globs leak hunt treats as internal (e.g. `*.corp.example.com,*.internal`)                         |
+| `LEAK_DB_PATH`             | SQLite file for leak hunt history (default `/app/data/leak-hunt.db` in Docker, else `./data/leak-hunt.db`) |
+| `LEAK_HUNT_SCHEDULE`       | Scheduled leak hunts, `domain=keywords@interval` separated by `;` (e.g. `example.com=example@12h`)         |
+| `LEAK_HUNT_WEBHOOK`        | Slack/Teams incoming webhook, sent counts and a link when a scheduled hunt finds new results               |
+| `LEAK_HUNT_PUBLIC_URL`     | Base URL of this instance, used for the review link in webhook alerts                                      |
+| `CHROME_PATH`              | The path the Chromium executable (e.g. `/usr/bin/chromium`)                                                |
+| `DISABLE_GUI`              | Disable the GUI, and only serve the API (e.g. `false`)                                                     |
+| `PUBLIC_API_ENDPOINT`      | The endpoint for the API, either local or remote (e.g. `/api`)                                             |
 
 All values are optional.
+
+Leak hunt history is kept in SQLite (needs Node 22.5+). In Docker, mount a volume so it survives restarts, e.g. `-v ./data:/app/data`.
 
 You can add these as environmental variables. Either put them directly into an `.env` file in the projects root, or via the Netlify / Vercel UI, or by passing to the Docker container with the --env flag, or using your own environmental variable management system
 

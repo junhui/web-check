@@ -34,17 +34,31 @@ const internalHostRe = () => {
 };
 
 export const SENSITIVE_EXT = /\.(?:sql|bak|env|log|config|pem|key|zip|tar\.gz|dump|xlsx?|csv)$/i;
-export const SENSITIVE_PARAMS = [
+// Param names that almost always carry a credential
+export const STRONG_PARAMS = [
   'token',
   'api_key',
   'apikey',
-  'key',
   'secret',
   'password',
-  'sig',
+  'passwd',
   'access_token',
+  'auth',
   'session',
+  'sessionid',
+  'private_key',
+  'client_secret',
 ];
+// Generic names (product keys, OAuth codes...), only flagged when the value looks secret
+export const WEAK_PARAMS = ['key', 'sig', 'signature', 'code'];
+export const SENSITIVE_PARAMS = [...STRONG_PARAMS, ...WEAK_PARAMS];
+
+// Long, mixed letters and digits, or a long hex/base64 blob
+export const looksSecret = (value) => {
+  const v = String(value || '');
+  if (v.length >= 20 && /[a-z]/i.test(v) && /\d/.test(v)) return true;
+  return /^[a-f0-9]{32,}$/i.test(v) || /^[A-Za-z0-9+/_-]{32,}={0,2}$/.test(v);
+};
 
 const SECRET_IDS = {
   'AWS access key ID': ['aws-key', 'critical'],
@@ -117,7 +131,14 @@ export const RULES = [
     id: 'sensitive-param',
     label: 'Sensitive URL parameter',
     severity: 'high',
-    regex: new RegExp(`[?&](?:${SENSITIVE_PARAMS.join('|')})=[^&\\s"'<>#]{4,}`, 'gi'),
+    regex: new RegExp(`[?&](?:${STRONG_PARAMS.join('|')})=[^&\\s"'<>#]{4,}`, 'gi'),
+  },
+  {
+    id: 'sensitive-param',
+    label: 'Sensitive URL parameter',
+    severity: 'medium',
+    regex: new RegExp(`[?&](?:${WEAK_PARAMS.join('|')})=([^&\\s"'<>#]{20,})`, 'gi'),
+    test: (m) => looksSecret(m[1]),
   },
 ];
 
@@ -178,6 +199,7 @@ export const scan = (text, ctx = {}) => {
   );
   for (const rule of rules) {
     for (const m of src.matchAll(rule.regex)) {
+      if (rule.test && !rule.test(m)) continue;
       hits.push({ rule, index: m.index, text: m[0] });
     }
   }

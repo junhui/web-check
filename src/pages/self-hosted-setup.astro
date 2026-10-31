@@ -153,6 +153,30 @@ const configGroups: { title: string; description: string; options: ConfigOption[
         example: 'web-check-scanner/1.0',
       },
       {
+        key: 'LEAK_INTERNAL_HOSTS',
+        info: 'Hostname globs leak hunt treats as internal infrastructure',
+        example: '*.corp.example.com,*.internal',
+      },
+      {
+        key: 'LEAK_DB_PATH',
+        info: 'SQLite file for leak hunt history (mount a volume on /app/data in Docker to keep it)',
+        example: '/app/data/leak-hunt.db',
+      },
+      {
+        key: 'LEAK_HUNT_SCHEDULE',
+        info: 'Scheduled leak hunts as domain=keywords@interval, separated by ; (default 24h, min 1h)',
+        example: 'example.com=example,example.com@12h',
+      },
+      {
+        key: 'LEAK_HUNT_WEBHOOK',
+        info: 'Slack or Teams incoming webhook, alerted with counts when a scheduled hunt finds something new',
+      },
+      {
+        key: 'LEAK_HUNT_PUBLIC_URL',
+        info: 'Base URL of this instance, for the review link in webhook alerts',
+        example: 'https://web-check.example.com',
+      },
+      {
         key: 'API_BLOCKED_HOSTS',
         info: 'Hosts, IPs or CIDR ranges that must never be scanned',
         example: 'lan.example.com,192.168.0.0/16',

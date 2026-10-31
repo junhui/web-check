@@ -5,6 +5,7 @@ import { runJob } from './_common/jobs.js';
 import { upstreamError } from './_common/upstream.js';
 import { severityRank, worst } from './_common/leak-rules.js';
 import * as sources from './_common/leak-sources.js';
+import * as store from './_common/leak-store.js';
 
 const MAX_KEYWORDS = 8;
 const MAX_KEYWORD_LEN = 50;
@@ -15,8 +16,10 @@ const WAIT_BEFORE_PENDING = 10000;
 const RESULT_TTL = 30 * 60 * 1000;
 
 // Postman runs last, as it inspects pages found by the search sources
-const SOURCES = ['wayback', 'commoncrawl', 'crtsh', 'github', 'google', 'brave', 'postman'];
+export const SOURCES = ['wayback', 'commoncrawl', 'crtsh', 'github', 'google', 'brave', 'postman'];
 const SEARCH_SOURCES = ['google', 'brave'];
+
+export const defaultKeywords = (domain) => [domain.split('.')[0], domain];
 
 const getQuery = (request) => request?.query || request?.queryStringParameters || {};
 
@@ -113,6 +116,33 @@ const hunt = async ({ domain, keywords, selected }, report) => {
   };
 };
 
+// Hunt, then save to history; tags each finding with isNew and its stored status
+export const huntAndRecord = async (params, report = () => {}) => {
+  const startedAt = Date.now();
+  const result = await hunt(params, report);
+  let history = { enabled: false, runId: null, newCount: 0 };
+  try {
+    history = store.recordRun(params.domain, params.keywords, result, startedAt);
+  } catch (err) {
+    console.error(`[leak-hunt] could not save history: ${err.message}`);
+  }
+  if (!history.enabled) {
+    history.message = store.disabledMessage();
+    for (const f of result.findings) Object.assign(f, { isNew: false, status: 'new' });
+  }
+  return { ...result, history };
+};
+
+// Results are cached for a while, so pick up any status changes made since the run
+const withCurrentStatus = (result) => {
+  if (!result.history?.enabled || !result.findings) return result;
+  const statuses = store.getStatuses(result.findings.map((f) => f.fingerprint));
+  return {
+    ...result,
+    findings: result.findings.map((f) => ({ ...f, status: statuses[f.fingerprint] || f.status })),
+  };
+};
+
 const leakHuntHandler = async (url, request) => {
   const { hostname } = parseTarget(url);
   if (net.isIP(hostname)) return { error: 'Leak hunt needs a domain name, not an IP address' };
@@ -120,7 +150,7 @@ const leakHuntHandler = async (url, request) => {
   const query = getQuery(request);
 
   let keywords = parseList(query.keywords);
-  if (!keywords.length) keywords = [domain.split('.')[0], domain];
+  if (!keywords.length) keywords = defaultKeywords(domain);
   if (keywords.length > MAX_KEYWORDS) return { error: `At most ${MAX_KEYWORDS} keywords allowed` };
   if (keywords.some((k) => k.length > MAX_KEYWORD_LEN || /["\\]/.test(k))) {
     return { error: `Keywords must be under ${MAX_KEYWORD_LEN} chars, without quotes` };
@@ -135,11 +165,15 @@ const leakHuntHandler = async (url, request) => {
   const selected = requested.length ? SOURCES.filter((s) => requested.includes(s)) : SOURCES;
 
   const key = `leak|${domain}|${[...keywords].sort().join(',')}|${selected.join(',')}`;
-  const result = await runJob(key, (report) => hunt({ domain, keywords, selected }, report), {
-    waitMs: WAIT_BEFORE_PENDING,
-    ttlMs: RESULT_TTL,
-  });
-  if (!result.pending) return result;
+  const result = await runJob(
+    key,
+    (report) => huntAndRecord({ domain, keywords, selected }, report),
+    {
+      waitMs: WAIT_BEFORE_PENDING,
+      ttlMs: RESULT_TTL,
+    },
+  );
+  if (!result.pending) return withCurrentStatus(result);
   return { ...result, domain, keywords };
 };
 

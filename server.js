@@ -40,6 +40,8 @@ const guiPath = path.join(__dirname, 'dist', 'client');
 const placeholderFilePath = path.join(__dirname, 'public', 'placeholder.html');
 let notFoundFilePath = path.join(__dirname, 'public', 'error.html');
 const handlers = {}; // Will store list of API endpoints
+// Not run by the aggregate /api endpoint: leak hunt is slow and stateful, the others need extra params
+const AGGREGATE_SKIP = ['leak-hunt', 'leak-findings', 'leak-status'];
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8'));
 const apiFiles = fs
   .readdirSync(dirPath, { withFileTypes: true })
@@ -97,7 +99,23 @@ if (process.env.API_ENABLE_RATE_LIMIT === 'true') {
   app.use(API_DIR, limiters);
 }
 
+// Scheduled leak hunts, once every handler has loaded (needs LEAK_HUNT_SCHEDULE)
+const startLeakScheduler = async () => {
+  if (!process.env.LEAK_HUNT_SCHEDULE) return;
+  const { startScheduler } = await import('./api/_common/leak-scheduler.js');
+  const { huntAndRecord, defaultKeywords, SOURCES } = await import('./api/leak-hunt.js');
+  startScheduler({
+    runHunt: ({ domain, keywords }) =>
+      huntAndRecord({
+        domain,
+        keywords: keywords.length ? keywords : defaultKeywords(domain),
+        selected: SOURCES,
+      }),
+  });
+};
+
 // Read and register each API function as an Express routes
+let loadedCount = 0;
 apiFiles.forEach(async (dirent) => {
   const routeName = dirent.name.split('.')[0];
   const route = `${API_DIR}/${routeName}`;
@@ -113,6 +131,9 @@ apiFiles.forEach(async (dirent) => {
       res.status(500).json({ error: err.message });
     }
   });
+  if (++loadedCount === apiFiles.length) {
+    startLeakScheduler().catch((err) => console.error('Leak scheduler failed:', err.message));
+  }
 });
 
 const renderPlaceholderPage = async (res, msgId, logs) => {
@@ -168,6 +189,10 @@ app.get(API_DIR, async (req, res) => {
 
   const handlerPromises = Object.entries(handlers).map(async ([route, handler]) => {
     const routeName = route.replace(`${API_DIR}/`, '');
+    if (AGGREGATE_SKIP.includes(routeName)) {
+      results[routeName] = { skipped: `Run /api/${routeName} on its own` };
+      return;
+    }
 
     const { skip, reason } = shouldSkip(routeName, url);
     if (skip) {

@@ -61,3 +61,6 @@ Thumbs.db
 *.swo
 
 .vercel
+
+# Leak hunt history (SQLite)
+data/

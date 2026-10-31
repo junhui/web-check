@@ -47,6 +47,15 @@ const SEVERITY_STATUS: Record<string, Status> = {
 };
 const SOURCE_STATUS: Record<string, Status> = { ok: 'pass', skipped: 'info', error: 'error' };
 
+const STATUS_OPTIONS = [
+  { id: 'new', label: 'New' },
+  { id: 'confirmed', label: 'Confirmed' },
+  { id: 'false_positive', label: 'False positive' },
+  { id: 'resolved', label: 'Resolved' },
+];
+
+const DOMAIN_RE = /^[a-z0-9.-]+\.[a-z]{2,}$/i;
+
 const POLL_DELAY = 5000;
 const MAX_POLLS = 40;
 
@@ -122,6 +131,43 @@ const Finding = styled.div`
   }
 `;
 
+const Badge = styled.span`
+  display: inline-block;
+  margin-right: 0.4rem;
+  padding: 0 0.35rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  background: ${colors.primary};
+  color: ${colors.background};
+  vertical-align: middle;
+`;
+
+const Toolbar = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+`;
+
+const StatusSelect = styled.select`
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid ${colors.primaryTransparent};
+  background: ${colors.backgroundRaised};
+  color: ${colors.textColor};
+`;
+
+const fmtTime = (iso: string) => (iso ? new Date(iso).toLocaleString() : '');
+
+const runCounts = (summary: any = {}) =>
+  SEVERITIES.filter((s) => summary[s])
+    .map((s) => `${s} ${summary[s]}`)
+    .join(', ') || 'none';
+
 const ruleLabels = (rules: string[] = []) => rules.map((r) => RULE_LABELS[r] || r).join(', ');
 
 const LeakHunt = (): JSX.Element => {
@@ -139,7 +185,69 @@ const LeakHunt = (): JSX.Element => {
   const [busy, setBusy] = useState(false);
   const abort = useRef<AbortController | null>(null);
 
+  const [history, setHistory] = useState<any>(null);
+  const [historyFilter, setHistoryFilter] = useState('');
+  const [historyStatus, setHistoryStatus] = useState('');
+
   useEffect(() => () => abort.current?.abort(), []);
+
+  const loadHistory = async (target = domain.trim()) => {
+    if (!DOMAIN_RE.test(target)) return;
+    setHistoryStatus('Loading history...');
+    try {
+      const res = await fetch(`${apiBase}/leak-findings?${new URLSearchParams({ url: target })}`);
+      const body = await res.json();
+      setHistory(body);
+      setHistoryStatus(body.error || '');
+    } catch (err: any) {
+      setHistoryStatus(`Could not load history: ${err.message}`);
+    }
+  };
+
+  // Auto-load history for a prefilled ?domain=
+  useEffect(() => {
+    if (domain) loadHistory(domain);
+  }, []);
+
+  // Optimistic: update both lists, roll back if the API refuses
+  const changeStatus = async (fingerprint: string, next: string) => {
+    const apply = (list: any[] = [], from?: Record<string, string>) =>
+      list.map((f) =>
+        f.fingerprint === fingerprint ? { ...f, status: from ? from[f.fingerprint] : next } : f,
+      );
+    const before: Record<string, string> = {};
+    for (const f of [...(history?.findings || []), ...(result?.findings || [])]) {
+      if (f.fingerprint === fingerprint) before[fingerprint] = f.status;
+    }
+    setHistory((h: any) => h && { ...h, findings: apply(h.findings) });
+    setResult((r: any) => r && { ...r, findings: apply(r.findings) });
+    const target = history?.domain || result?.domain || domain.trim();
+    const params = new URLSearchParams({ url: target, id: fingerprint, status: next });
+    try {
+      const res = await fetch(`${apiBase}/leak-status?${params}`);
+      const body = await res.json();
+      if (body.error || !body.finding) throw new Error(body.error || body.message || 'not saved');
+    } catch (err: any) {
+      setHistory((h: any) => h && { ...h, findings: apply(h.findings, before) });
+      setResult((r: any) => r && { ...r, findings: apply(r.findings, before) });
+      setHistoryStatus(`Status not saved: ${err.message}`);
+    }
+  };
+
+  const statusPicker = (f: any) =>
+    f.fingerprint && (
+      <StatusSelect
+        value={f.status || 'new'}
+        onChange={(e) => changeStatus(f.fingerprint, e.target.value)}
+        aria-label="Finding status"
+      >
+        {STATUS_OPTIONS.map((o) => (
+          <option key={o.id} value={o.id}>
+            {o.label}
+          </option>
+        ))}
+      </StatusSelect>
+    );
 
   const toggle = (id: string) =>
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -148,7 +256,7 @@ const LeakHunt = (): JSX.Element => {
   const run = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const target = domain.trim();
-    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(target)) return setStatus('Enter a valid domain name');
+    if (!DOMAIN_RE.test(target)) return setStatus('Enter a valid domain name');
     if (!selected.length) return setStatus('Pick at least one source');
     abort.current?.abort();
     const controller = new AbortController();
@@ -166,6 +274,7 @@ const LeakHunt = (): JSX.Element => {
         if (!body.pending) {
           setResult(body);
           setStatus('');
+          if (body.history?.enabled) loadHistory(target);
           return;
         }
         setProgress(body.progress || null);
@@ -177,6 +286,73 @@ const LeakHunt = (): JSX.Element => {
     } finally {
       setBusy(false);
     }
+  };
+
+  const renderHistory = () => {
+    if (!history && !historyStatus) return null;
+    const all: any[] = history?.findings || [];
+    const shown = historyFilter ? all.filter((f) => f.status === historyFilter) : all;
+    return (
+      <Card heading={`History${history?.domain ? `: ${history.domain}` : ''}`}>
+        {historyStatus && <p>{historyStatus}</p>}
+        {history && !history.enabled && !history.error && (
+          <p>
+            History is disabled on this instance{history.message ? ` (${history.message})` : ''}.
+          </p>
+        )}
+        {history?.enabled && (
+          <>
+            <Toolbar>
+              <label>
+                Status{' '}
+                <StatusSelect
+                  value={historyFilter}
+                  onChange={(e) => setHistoryFilter(e.target.value)}
+                >
+                  <option value="">All ({all.length})</option>
+                  {STATUS_OPTIONS.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.label} ({all.filter((f) => f.status === o.id).length})
+                    </option>
+                  ))}
+                </StatusSelect>
+              </label>
+              <StatusSelect as="button" onClick={() => loadHistory(history.domain)}>
+                Refresh
+              </StatusSelect>
+            </Toolbar>
+            {!shown.length && <p>No saved findings{historyFilter ? ' with this status' : ''}.</p>}
+            {shown.map((f) => (
+              <Finding
+                key={f.fingerprint}
+                style={f.status === 'false_positive' ? { opacity: 0.45 } : undefined}
+              >
+                {f.isNew && <Badge>NEW</Badge>}
+                <a href={f.url} target="_blank" rel="noreferrer">
+                  {f.title || f.url}
+                </a>
+                <Meta>
+                  {f.severity} / {f.source} / {ruleLabels(f.rules)} / first seen{' '}
+                  {fmtTime(f.first_seen)} / last seen {fmtTime(f.last_seen)}
+                </Meta>
+                {f.snippet && <Snippet>{f.snippet}</Snippet>}
+                {statusPicker(f)}
+              </Finding>
+            ))}
+            <h4>Recent runs</h4>
+            {!history.runs?.length && <p>No runs saved yet.</p>}
+            {(history.runs || []).map((r: any) => (
+              <Row
+                key={r.id}
+                lbl={fmtTime(r.finished_at)}
+                val={`${r.summary?.total ?? 0} findings (${runCounts(r.summary)}), ${r.new_count} new`}
+                status={r.new_count ? 'warning' : undefined}
+              />
+            ))}
+          </>
+        )}
+      </Card>
+    );
   };
 
   const findings: any[] = result?.findings || [];
@@ -263,7 +439,11 @@ const LeakHunt = (): JSX.Element => {
                     {sev[0].toUpperCase() + sev.slice(1)} ({group.length})
                   </h4>
                   {group.map((f) => (
-                    <Finding key={f.id}>
+                    <Finding
+                      key={f.id}
+                      style={f.status === 'false_positive' ? { opacity: 0.45 } : undefined}
+                    >
+                      {f.isNew && <Badge>NEW</Badge>}
                       <a href={f.url} target="_blank" rel="noreferrer">
                         {f.title}
                       </a>
@@ -272,6 +452,7 @@ const LeakHunt = (): JSX.Element => {
                         {f.owner ? ` / owner: ${f.owner}` : ''}
                         {f.foundAt ? ` / ${f.foundAt}` : ''} / {ruleLabels(f.rules)}
                       </Meta>
+                      {statusPicker(f)}
                       {f.snippet && <Snippet>{f.snippet}</Snippet>}
                     </Finding>
                   ))}
@@ -290,6 +471,7 @@ const LeakHunt = (): JSX.Element => {
           </Card>
         </Stack>
       )}
+      {renderHistory()}
     </>
   );
 };
