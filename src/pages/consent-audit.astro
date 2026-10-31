@@ -1,0 +1,40 @@
+---
+import PageLayout from '@layouts/Page.astro';
+import ConsentAudit from '../client/views/ConsentAudit';
+
+const description =
+  'Compare the cookies, scripts and third-party requests a site makes under each consent choice.';
+---
+
+<PageLayout
+  title="Consent Audit | Web Check"
+  description={description}
+  breadcrumbs={[
+    { name: 'Web Check', item: '' },
+    { name: 'Consent Audit', item: 'consent-audit' },
+  ]}
+>
+  <section class="intro">
+    <h1>Consent audit</h1>
+    <p class="tagline">
+      Load a site in a fresh browser for each consent choice (no interaction, accept all, Do Not
+      Sell opt-out, Global Privacy Control, and denying one category at a time) and compare the
+      cookies, scripts and third-party hosts each one produces. Supports the Osano consent manager.
+    </p>
+    <p class="note">
+      Only names and metadata are collected: cookie and storage values are never read into the
+      results, and request URLs are cut to host and path. State simulation rewrites the jurisdiction
+      in the consent manager's script, so it shows how the banner config behaves, not what a real
+      visitor from that state would get from server-side geolocation. Sites behind a bot check may
+      block some pages; those are marked as blocked.
+    </p>
+  </section>
+  <ConsentAudit client:only="react" />
+</PageLayout>
+
+<style>
+  .note {
+    color: var(--text-color-tertiary);
+    font-size: 0.9rem;
+  }
+</style>

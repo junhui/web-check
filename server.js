@@ -41,7 +41,7 @@ const placeholderFilePath = path.join(__dirname, 'public', 'placeholder.html');
 let notFoundFilePath = path.join(__dirname, 'public', 'error.html');
 const handlers = {}; // Will store list of API endpoints
 // Not run by the aggregate /api endpoint: leak hunt is slow and stateful, the others need extra params
-const AGGREGATE_SKIP = ['leak-hunt', 'leak-findings', 'leak-status'];
+const AGGREGATE_SKIP = ['leak-hunt', 'leak-findings', 'leak-status', 'consent-audit'];
 const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf-8'));
 const apiFiles = fs
   .readdirSync(dirPath, { withFileTypes: true })
