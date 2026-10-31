@@ -191,6 +191,7 @@ But there are some optional environmental variables that you can set to give you
 | `API_DISABLED_CHECKS`      | Comma-separated list of checks to disable (e.g. `trace-route,ports`)       |
 | `API_ENABLED_CHECKS`       | If set, only these checks will run (e.g. `get-ip,ssl,dns,headers`)         |
 | `API_BLOCKED_HOSTS`        | Hosts that must never be scanned (e.g. `lan.example.com,192.168.0.0/16`)   |
+| `API_ALLOW_ACTIVE_CHECKS`  | Set to `true` to enable intrusive checks (`nmap`, `exposed-files`, `http-methods`, `zone-transfer`) |
 | `CHROME_PATH`              | The path the Chromium executable (e.g. `/usr/bin/chromium`)                |
 | `DISABLE_GUI`              | Disable the GUI, and only serve the API (e.g. `false`)                     |
 | `PUBLIC_API_ENDPOINT`      | The endpoint for the API, either local or remote (e.g. `/api`)             |

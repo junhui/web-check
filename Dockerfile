@@ -49,7 +49,7 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/server.js /app/healthcheck.js /app/package.json /app/yarn.lock ./
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends chromium traceroute tini && \
+    apt-get install -y --no-install-recommends chromium traceroute nmap tini && \
     rm -rf /var/lib/apt/lists/*
 
 # Fail the build here if the runtime tree can't load the compiled server

@@ -1,0 +1,36 @@
+---
+import PageLayout from '@layouts/Page.astro';
+import IpScan from '../client/views/IpScan';
+
+const description = 'Run an nmap port scan against an IP address you are authorised to test.';
+---
+
+<PageLayout
+  title="IP Port Scan | Web Check"
+  description={description}
+  breadcrumbs={[
+    { name: 'Web Check', item: '' },
+    { name: 'IP Port Scan', item: 'ip-scan' },
+  ]}
+>
+  <section class="intro">
+    <h1>IP port scan</h1>
+    <p class="tagline">
+      Scan an IP address with nmap, using a preset port list. Only scan hosts you own or are
+      authorised to test.
+    </p>
+    <p class="note">
+      This is an active check. It's off unless the instance sets{' '}
+      <code>API_ALLOW_ACTIVE_CHECKS=true</code>, and needs nmap installed (included in the Docker
+      image). Longer scans run in the background and this page polls until they finish.
+    </p>
+  </section>
+  <IpScan client:only="react" />
+</PageLayout>
+
+<style>
+  .note {
+    color: var(--text-color-tertiary);
+    font-size: 0.9rem;
+  }
+</style>

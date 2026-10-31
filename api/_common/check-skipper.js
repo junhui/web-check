@@ -6,6 +6,7 @@
  * API_ENABLED_CHECKS - comma seperated list of checks to run (all others will be skipped)
  * API_BLOCKED_HOSTS - comma seperated hosts that must never be scanned (domains, IPs or CIDR ranges)
  * Or the target is a private IP and the check needs a public one (like for external API)
+ * Or the check actively probes the target and API_ALLOW_ACTIVE_CHECKS isn't 'true'
  *
  * Note that the get-ip check is probably always needed. Since IP used for most checks.
  */
@@ -21,6 +22,13 @@ const getSkipMessage = (skipReason, check) => {
   // The check can't run against private IPs
   if (skipReason === 'private-ip') {
     return `The ${check} check can\'t run for private hosts`;
+  }
+  // Intrusive checks are opt-in
+  if (skipReason === 'active-check') {
+    return (
+      `The ${check} check actively probes the target, so is off by default. ` +
+      'Set API_ALLOW_ACTIVE_CHECKS=true to enable it, and only scan hosts you are authorised to test.'
+    );
   }
   // Admin has blocked this host from being scanned
   if (skipReason === 'target-blocked') {
@@ -104,20 +112,35 @@ const isBlockedTarget = (target) => {
 
 /* Checks which send the target to an outside service, so are useless for private hosts */
 const publicOnlyChecks = [
+  'abuseipdb',
   'archives',
+  'asn',
   'block-lists',
+  'brand-impersonation',
   'breaches',
+  'censys',
+  'dane',
   'dnssec',
   'location',
   'quality',
   'rank',
+  'rdap',
+  'reverse-ip',
   'shodan',
   'social-presence',
   'subdomains',
   'threats',
   'tls-labs',
+  'typosquat',
+  'urlscan',
+  'virustotal',
   'whois',
 ];
+
+/* Checks which send probes or exploit-style requests to the target, so are opt-in */
+const activeChecks = ['exposed-files', 'http-methods', 'nmap', 'zone-transfer'];
+
+const activeChecksAllowed = () => process.env.API_ALLOW_ACTIVE_CHECKS === 'true';
 
 /* Returns true if the target is a private IP, localhost or a .local address */
 export const isPrivateTarget = (target) => {
@@ -152,6 +175,9 @@ export const shouldSkip = (path, target) => {
   }
   if (isCheckDisabled(check)) {
     return { skip: true, reason: getSkipMessage('check-disabled', check) };
+  }
+  if (activeChecks.includes(check) && !activeChecksAllowed()) {
+    return { skip: true, reason: getSkipMessage('active-check', check) };
   }
   if (publicOnlyChecks.includes(check) && isPrivateTarget(target)) {
     return { skip: true, reason: getSkipMessage('private-ip', check) };

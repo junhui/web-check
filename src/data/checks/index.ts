@@ -44,6 +44,33 @@ import tlsSecurityAudit from './tls-security-audit';
 import tlsClientCompat from './tls-client-compat';
 import screenshot from './screenshot';
 import subdomains from './subdomains';
+import exposedFiles from './exposed-files';
+import cors from './cors';
+import httpMethods from './http-methods';
+import cspEval from './csp-eval';
+import sri from './sri';
+import cookieSecurity from './cookie-security';
+import jsLibs from './js-libs';
+import jsSecrets from './js-secrets';
+import subdomainTakeover from './subdomain-takeover';
+import zoneTransfer from './zone-transfer';
+import dane from './dane';
+import certExpiry from './cert-expiry';
+import asn from './asn';
+import reverseIp from './reverse-ip';
+import typosquat from './typosquat';
+import rdap from './rdap';
+import virustotal from './virustotal';
+import abuseipdb from './abuseipdb';
+import censys from './censys';
+import dorks from './dorks';
+import pageRequests from './page-requests';
+import pageDownloads from './page-downloads';
+import pageRedirects from './page-redirects';
+import pageIdentifiers from './page-identifiers';
+import pageScripts from './page-scripts';
+import urlscan from './urlscan';
+import brandImpersonation from './brand-impersonation';
 
 export type Resource = string | { title: string; link: string };
 
@@ -102,6 +129,33 @@ const all = {
   'tls-client-compat': tlsClientCompat,
   screenshot,
   subdomains,
+  'exposed-files': exposedFiles,
+  cors,
+  'http-methods': httpMethods,
+  'csp-eval': cspEval,
+  sri,
+  'cookie-security': cookieSecurity,
+  'js-libs': jsLibs,
+  'js-secrets': jsSecrets,
+  'subdomain-takeover': subdomainTakeover,
+  'zone-transfer': zoneTransfer,
+  dane,
+  'cert-expiry': certExpiry,
+  asn,
+  'reverse-ip': reverseIp,
+  typosquat,
+  rdap,
+  virustotal,
+  abuseipdb,
+  censys,
+  dorks,
+  'page-requests': pageRequests,
+  'page-downloads': pageDownloads,
+  'page-redirects': pageRedirects,
+  'page-identifiers': pageIdentifiers,
+  'page-scripts': pageScripts,
+  urlscan,
+  'brand-impersonation': brandImpersonation,
 };
 
 export type CheckId = keyof typeof all;

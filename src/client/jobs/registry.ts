@@ -44,6 +44,33 @@ import TlsConnectionCard from 'client/components/Results/TlsConnection';
 import TlsSecurityAuditCard from 'client/components/Results/TlsSecurityAudit';
 import TlsClientCompatCard from 'client/components/Results/TlsClientCompat';
 import SubdomainsCard from 'client/components/Results/Subdomains';
+import ExposedFilesCard from 'client/components/Results/ExposedFiles';
+import CorsCard from 'client/components/Results/Cors';
+import HttpMethodsCard from 'client/components/Results/HttpMethods';
+import CspEvalCard from 'client/components/Results/CspEval';
+import SriCard from 'client/components/Results/Sri';
+import CookieSecurityCard from 'client/components/Results/CookieSecurity';
+import JsLibsCard from 'client/components/Results/JsLibs';
+import JsSecretsCard from 'client/components/Results/JsSecrets';
+import SubdomainTakeoverCard from 'client/components/Results/SubdomainTakeover';
+import ZoneTransferCard from 'client/components/Results/ZoneTransfer';
+import DaneCard from 'client/components/Results/Dane';
+import CertExpiryCard from 'client/components/Results/CertExpiry';
+import AsnCard from 'client/components/Results/Asn';
+import ReverseIpCard from 'client/components/Results/ReverseIp';
+import TyposquatCard from 'client/components/Results/Typosquat';
+import RdapCard from 'client/components/Results/Rdap';
+import VirusTotalCard from 'client/components/Results/VirusTotal';
+import AbuseIpdbCard from 'client/components/Results/AbuseIpdb';
+import CensysCard from 'client/components/Results/Censys';
+import DorksCard from 'client/components/Results/Dorks';
+import PageRequestsCard from 'client/components/Results/PageRequests';
+import PageDownloadsCard from 'client/components/Results/PageDownloads';
+import PageRedirectsCard from 'client/components/Results/PageRedirects';
+import PageIdentifiersCard from 'client/components/Results/PageIdentifiers';
+import PageScriptsCard from 'client/components/Results/PageScripts';
+import UrlscanCard from 'client/components/Results/Urlscan';
+import BrandImpersonationCard from 'client/components/Results/BrandImpersonation';
 
 import { checks, type CheckId } from '@/data/checks';
 import type { CategoryId } from '@/data/categories';
@@ -387,6 +414,150 @@ export const jobs: JobSpec[] = [
     expectedAddressTypes: [...URL_ONLY],
     cards: [card('carbon', CarbonFootprintCard)],
     fetcher: fetchAndProcess('carbon?url=${url}'),
+  },
+  {
+    id: 'exposed-files',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('exposed-files', ExposedFilesCard)],
+    fetcher: fetchAndProcess('exposed-files?url=${url}'),
+  },
+  {
+    id: 'cors',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('cors', CorsCard)],
+    fetcher: fetchAndProcess('cors?url=${url}'),
+  },
+  {
+    id: 'http-methods',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('http-methods', HttpMethodsCard)],
+    fetcher: fetchAndProcess('http-methods?url=${url}'),
+  },
+  {
+    id: 'csp-eval',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('csp-eval', CspEvalCard)],
+    fetcher: fetchAndProcess('csp-eval?url=${url}'),
+  },
+  {
+    id: 'sri',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('sri', SriCard)],
+    fetcher: fetchAndProcess('sri?url=${url}'),
+  },
+  {
+    id: 'cookie-security',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('cookie-security', CookieSecurityCard)],
+    fetcher: fetchAndProcess('cookie-security?url=${url}'),
+  },
+  {
+    id: 'js-libs',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('js-libs', JsLibsCard)],
+    fetcher: fetchAndProcess('js-libs?url=${url}'),
+  },
+  {
+    id: 'js-secrets',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('js-secrets', JsSecretsCard)],
+    fetcher: fetchAndProcess('js-secrets?url=${url}'),
+  },
+  {
+    id: 'subdomain-takeover',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('subdomain-takeover', SubdomainTakeoverCard)],
+    fetcher: fetchAndProcess('subdomain-takeover?url=${url}'),
+  },
+  {
+    id: 'zone-transfer',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('zone-transfer', ZoneTransferCard)],
+    fetcher: fetchAndProcess('zone-transfer?url=${url}'),
+  },
+  {
+    id: 'dane',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('dane', DaneCard)],
+    fetcher: fetchAndProcess('dane?url=${url}'),
+  },
+  {
+    id: 'cert-expiry',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('cert-expiry', CertExpiryCard)],
+    fetcher: fetchAndProcess('cert-expiry?url=${url}'),
+  },
+  {
+    id: 'asn',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('asn', AsnCard)],
+    fetcher: fetchAndProcess('asn?url=${url}'),
+  },
+  {
+    id: 'reverse-ip',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('reverse-ip', ReverseIpCard)],
+    fetcher: fetchAndProcess('reverse-ip?url=${url}'),
+  },
+  {
+    id: 'typosquat',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('typosquat', TyposquatCard)],
+    fetcher: fetchAndProcess('typosquat?url=${url}'),
+  },
+  {
+    id: 'rdap',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('rdap', RdapCard)],
+    fetcher: fetchAndProcess('rdap?url=${url}'),
+  },
+  {
+    id: 'virustotal',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('virustotal', VirusTotalCard)],
+    fetcher: fetchAndProcess('virustotal?url=${url}'),
+  },
+  {
+    id: 'abuseipdb',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('abuseipdb', AbuseIpdbCard)],
+    fetcher: fetchAndProcess('abuseipdb?url=${url}'),
+  },
+  {
+    id: 'censys',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('censys', CensysCard)],
+    fetcher: fetchAndProcess('censys?url=${url}'),
+  },
+  {
+    id: 'dorks',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('dorks', DorksCard)],
+    fetcher: fetchAndProcess('dorks?url=${url}'),
+  },
+  {
+    id: 'page-load',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [
+      card('page-requests', PageRequestsCard),
+      card('page-downloads', PageDownloadsCard),
+      card('page-redirects', PageRedirectsCard),
+      card('page-identifiers', PageIdentifiersCard),
+      card('page-scripts', PageScriptsCard),
+    ],
+    fetcher: fetchAndProcess('page-load?url=${url}'),
+  },
+  {
+    id: 'urlscan',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('urlscan', UrlscanCard)],
+    fetcher: fetchAndProcess('urlscan?url=${url}'),
+  },
+  {
+    id: 'brand-impersonation',
+    expectedAddressTypes: [...URL_ONLY],
+    cards: [card('brand-impersonation', BrandImpersonationCard)],
+    fetcher: fetchAndProcess('brand-impersonation?url=${url}'),
   },
 ];
 

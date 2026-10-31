@@ -132,6 +132,11 @@ const configGroups: { title: string; description: string; options: ConfigOption[
       },
       { key: 'API_DISABLED_CHECKS', info: 'Checks to turn off', example: 'trace-route,ports' },
       {
+        key: 'API_ALLOW_ACTIVE_CHECKS',
+        info: 'Enable intrusive checks (nmap, exposed files, AXFR)',
+        example: 'true',
+      },
+      {
         key: 'API_BLOCKED_HOSTS',
         info: 'Hosts, IPs or CIDR ranges that must never be scanned',
         example: 'lan.example.com,192.168.0.0/16',
