@@ -19,6 +19,8 @@ externalDocs:
   description: 'Source: GitHub'
   url: https://github.com/Lissy93/web-check
 servers:
+  - url: /api
+    description: This instance
   - url: http://localhost:3001/api
     description: Local (Development)
   - url: http://localhost:3000/api
@@ -3631,3 +3633,485 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '429':
           $ref: '#/components/responses/TooManyRequests'
+  /exposed-files:
+    get:
+      summary: Probe for exposed sensitive files (.git, .env, backups). Active check, needs API_ALLOW_ACTIVE_CHECKS
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /cors:
+    get:
+      summary: Test CORS policy with foreign and null origins
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /http-methods:
+    get:
+      summary: Probe allowed HTTP methods (OPTIONS, TRACE). Active check
+      tags:
+        - Security
+        - Server Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /csp-eval:
+    get:
+      summary: Evaluate Content-Security-Policy strength
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /sri:
+    get:
+      summary: Find third-party scripts and styles missing Subresource Integrity
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /cookie-security:
+    get:
+      summary: Check Secure, HttpOnly and SameSite flags on cookies
+      tags:
+        - Security
+        - Client-Side Information
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /js-libs:
+    get:
+      summary: Detect JS libraries with known vulnerabilities (retire.js)
+      tags:
+        - Security
+        - Client-Side Information
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /js-secrets:
+    get:
+      summary: Scan front-end code for leaked keys and tokens (masked)
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /subdomain-takeover:
+    get:
+      summary: Find subdomains with dangling CNAMEs
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /zone-transfer:
+    get:
+      summary: Attempt DNS AXFR on each nameserver. Active check
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /dane:
+    get:
+      summary: Look up TLSA records for HTTPS and mail servers
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /cert-expiry:
+    get:
+      summary: Certificate days remaining and recent CT issuance
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /asn:
+    get:
+      summary: ASN, prefix and RPKI status for the server IP
+      tags:
+        - Server Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /reverse-ip:
+    get:
+      summary: Other domains hosted on the same IP
+      tags:
+        - Server Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /typosquat:
+    get:
+      summary: Registered lookalike and typo domains
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /rdap:
+    get:
+      summary: Domain registration data via RDAP
+      tags:
+        - Quality & Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /virustotal:
+    get:
+      summary: VirusTotal domain verdicts. Needs VT_API_KEY
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /abuseipdb:
+    get:
+      summary: AbuseIPDB reports for the server IP. Needs ABUSEIPDB_API_KEY
+      tags:
+        - Security
+        - Server Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /censys:
+    get:
+      summary: Censys host services. Needs CENSYS_API_ID and CENSYS_API_SECRET
+      tags:
+        - Server Info
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /dorks:
+    get:
+      summary: Generate search engine dork links for the domain
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /urlscan:
+    get:
+      summary: Public urlscan.io scan history and latest verdict
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /brand-impersonation:
+    get:
+      summary: Check lookalike domains for brand impersonation
+      tags:
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /page-load:
+    get:
+      summary: Load the page in headless Chromium and report requests, downloads, redirects, tracking IDs and scripts
+      tags:
+        - Client-Side Information
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+        - name: ua
+          in: query
+          required: false
+          description: Custom User-Agent to load the page with
+          schema:
+            type: string
+        - name: referer
+          in: query
+          required: false
+          description: Referer header to send (http or https URL)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object
+  /nmap:
+    get:
+      summary: 'nmap port scan of an IP address. Active check. Returns { pending: true } while running, poll until results arrive'
+      tags:
+        - Server Info
+        - Security
+      parameters:
+        - name: url
+          in: query
+          required: true
+          description: The URL to fetch results about
+          schema:
+            type: string
+        - name: mode
+          in: query
+          required: false
+          description: Port list to scan
+          schema:
+            type: string
+            enum: [quick, common, web, database, full, services]
+            default: quick
+      responses:
+        '200':
+          description: Successful response, or an object with a skipped / error message
+          content:
+            application/json:
+              schema:
+                type: object

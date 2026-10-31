@@ -59,6 +59,13 @@ const OpenPortsCard = (props: { data: any; title: string; actionButtons: any }):
         <br />
         {portData.failedPorts.join(', ')}
       </Note>
+      {portData.host && (
+        <Note>
+          <a href={`/ip-scan?ip=${encodeURIComponent(portData.host)}`}>
+            Deeper scan of this IP with nmap
+          </a>
+        </Note>
+      )}
     </Card>
   );
 };

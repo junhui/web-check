@@ -88,7 +88,7 @@ const portsHandler = async (url, event, context) => {
   openPorts.sort((a, b) => a - b);
   failedPorts.sort((a, b) => a - b);
 
-  return { openPorts, failedPorts };
+  return { host: domain, openPorts, failedPorts };
 };
 
 export const handler = middleware(portsHandler);

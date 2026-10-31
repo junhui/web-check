@@ -9,15 +9,8 @@ import Footer from '@components/scafold/Footer.astro';
   description="API documentation for the Web Check backend REST endpoints"
 >
   <Fragment slot="head">
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://rawcdn.githack.com/Amoenus/SwaggerDark/2064ccd45b571865a64c731fa6bfddfbf2a01fe1/SwaggerDark.css"
-    />
+    <link rel="stylesheet" type="text/css" href="/vendor/swagger-ui/swagger-ui.css" />
+    <link rel="stylesheet" href="/vendor/swagger-ui/swagger-dark.css" />
   </Fragment>
   <main>
     <NavBar />
@@ -26,10 +19,7 @@ import Footer from '@components/scafold/Footer.astro';
   </main>
 </BaseLayout>
 
-<script
-  is:inline
-  src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.3/swagger-ui-bundle.js"
-></script>
+<script is:inline src="/vendor/swagger-ui/swagger-ui-bundle.js"></script>
 <script is:inline>
   function initializeSwagger() {
     SwaggerUIBundle({

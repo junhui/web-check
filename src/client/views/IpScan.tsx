@@ -63,7 +63,8 @@ const Form = styled.form`
 `;
 
 const IpScan = (): JSX.Element => {
-  const [ip, setIp] = useState('');
+  // Prefill from ?ip=, as linked from the Open Ports card
+  const [ip, setIp] = useState(() => new URLSearchParams(window.location.search).get('ip') || '');
   const [mode, setMode] = useState('quick');
   const [status, setStatus] = useState('');
   const [result, setResult] = useState<any>(null);
