@@ -3,6 +3,7 @@ import { execFile } from 'child_process';
 import middleware from './_common/middleware.js';
 import { parseTarget } from './_common/parse-target.js';
 import { httpGet } from './_common/http.js';
+import { runJob } from './_common/jobs.js';
 
 // Long enough for a -sV service scan (host timeout below plus process overhead)
 const LOCAL_TIMEOUT = 190000;
@@ -176,26 +177,6 @@ const scan = async (ip, mode) => {
   };
 };
 
-// In-memory scan jobs keyed by ip+mode, so repeat requests poll the same scan
-const jobs = new Map();
-
-const getJob = (ip, mode) => {
-  const key = `${ip}|${mode}`;
-  const existing = jobs.get(key);
-  if (existing && (!existing.finishedAt || Date.now() - existing.finishedAt < RESULT_TTL)) {
-    return existing;
-  }
-  const job = { startedAt: Date.now(), finishedAt: null, result: null };
-  job.promise = scan(ip, mode).then((result) => {
-    job.result = result;
-    job.finishedAt = Date.now();
-    setTimeout(() => jobs.get(key) === job && jobs.delete(key), RESULT_TTL).unref();
-    return result;
-  });
-  jobs.set(key, job);
-  return job;
-};
-
 const nmapHandler = async (url, request) => {
   const { hostname: ip } = parseTarget(url);
   if (!net.isIP(ip)) {
@@ -206,12 +187,12 @@ const nmapHandler = async (url, request) => {
     return { error: `Unknown mode "${mode}". Valid modes: ${Object.keys(MODES).join(', ')}` };
   }
   // Wait briefly for quick scans, otherwise tell the client to poll again
-  const job = getJob(ip, mode);
-  if (job.result) return job.result;
-  const wait = new Promise((resolve) => setTimeout(resolve, WAIT_BEFORE_PENDING));
-  const result = await Promise.race([job.promise, wait]);
-  if (result) return result;
-  return { pending: true, ip, mode, elapsed: Date.now() - job.startedAt };
+  const result = await runJob(`nmap|${ip}|${mode}`, () => scan(ip, mode), {
+    waitMs: WAIT_BEFORE_PENDING,
+    ttlMs: RESULT_TTL,
+  });
+  if (!result.pending) return result;
+  return { pending: true, ip, mode, elapsed: result.elapsed };
 };
 
 export const handler = middleware(nmapHandler);

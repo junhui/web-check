@@ -1,0 +1,38 @@
+---
+import PageLayout from '@layouts/Page.astro';
+import LeakHunt from '../client/views/LeakHunt';
+
+const description =
+  'Search public archives, certificate logs, code and paste sites for leaked data about a domain.';
+---
+
+<PageLayout
+  title="Leak Hunt | Web Check"
+  description={description}
+  breadcrumbs={[
+    { name: 'Web Check', item: '' },
+    { name: 'Leak Hunt', item: 'leak-hunt' },
+  ]}
+>
+  <section class="intro">
+    <h1>Leak hunt</h1>
+    <p class="tagline">
+      Look for potential data leaks about a domain and keywords in public sources: the Wayback
+      Machine, Common Crawl, certificate logs, GitHub code search and search engine APIs.
+    </p>
+    <p class="note">
+      Results are masked: secrets show only their first few characters, and emails, phone numbers
+      and addresses are only counted. Rotate any secret you confirm as real. Keywords are sent to
+      third-party services, so only use this for assets you are authorised to assess. GitHub, Google
+      and Brave need API keys set on the instance.
+    </p>
+  </section>
+  <LeakHunt client:only="react" />
+</PageLayout>
+
+<style>
+  .note {
+    color: var(--text-color-tertiary);
+    font-size: 0.9rem;
+  }
+</style>

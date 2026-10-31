@@ -121,6 +121,7 @@ const publicOnlyChecks = [
   'censys',
   'dane',
   'dnssec',
+  'leak-hunt',
   'location',
   'quality',
   'rank',

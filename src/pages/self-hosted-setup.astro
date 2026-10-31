@@ -88,13 +88,24 @@ const configGroups: { title: string; description: string; options: ConfigOption[
       { key: 'TRANCO_USERNAME', info: 'Your Tranco account email, used with the key above' },
       {
         key: 'GITHUB_TOKEN',
-        info: 'Raises the GitHub rate limit for the social presence check',
+        info: 'Raises the GitHub rate limit for the social presence check, and runs GitHub code search in leak hunt',
         link: 'https://github.com/settings/tokens',
       },
       {
         key: 'CERTSPOTTER_TOKEN',
         info: 'Raises the CertSpotter rate limit for the subdomains check',
         link: 'https://sslmate.com/certspotter/api/',
+      },
+      {
+        key: 'GOOGLE_CSE_KEY',
+        info: 'Runs Google dork queries in leak hunt (Programmable Search JSON API)',
+        link: 'https://developers.google.com/custom-search/v1/overview',
+      },
+      { key: 'GOOGLE_CSE_ID', info: 'Your Programmable Search Engine ID, used with the key above' },
+      {
+        key: 'BRAVE_API_KEY',
+        info: 'Runs Brave Search dork queries in leak hunt',
+        link: 'https://brave.com/search/api/',
       },
     ],
   },

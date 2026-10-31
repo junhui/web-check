@@ -8,7 +8,6 @@
 
 </p>
 
-
 ---
 
 <p align="center">Kindly supported by:</p>
@@ -38,7 +37,6 @@
     </td>
   </tr>
 </table>
-
 
 #### Contents
 
@@ -112,14 +110,13 @@ See **[web-check.xyz/about](https://web-check.xyz/about)** for the full list of 
 
 Click the button below, to deploy to Netlify 👇
 
-[![Deploy to Netlify](https://img.shields.io/badge/Deploy-Netlify-%2330c8c9?style=for-the-badge&logo=netlify&labelColor=1e0e41 "Deploy Web-Check to Netlify, via 1-Click Script")](https://app.netlify.com/start/deploy?repository=https://github.com/lissy93/web-check)
+[![Deploy to Netlify](https://img.shields.io/badge/Deploy-Netlify-%2330c8c9?style=for-the-badge&logo=netlify&labelColor=1e0e41 'Deploy Web-Check to Netlify, via 1-Click Script')](https://app.netlify.com/start/deploy?repository=https://github.com/lissy93/web-check)
 
 ### Deploying - Option #2: Vercel
 
 Click the button below, to deploy to Vercel 👇
 
 [![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-%23ffffff?style=for-the-badge&logo=vercel&labelColor=1e0e41)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flissy93%2Fweb-check&project-name=web-check&repository-name=web-check-fork&demo-title=Web-Check%20Demo&demo-description=Check%20out%20web-check.xyz%20to%20see%20a%20live%20demo%20of%20this%20application%20running.&demo-url=https%3A%2F%2Fweb-check.xyz&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FLissy93%2Fweb-check%2Fmaster%2F.github%2Fscreenshots%2Fweb-check-screenshot10.png)
-
 
 ### Deploying - Option #3: Hostinger
 
@@ -177,25 +174,28 @@ But there are some optional environmental variables that you can set to give you
 | `CLOUDMERSIVE_API_KEY` | A Cloudmersive API key ([get here](https://account.cloudmersive.com/)). Adds the Cloudmersive website scan to the threats check                                                                       |
 | `TRANCO_API_KEY`       | A Tranco API key ([get here](https://tranco-list.eu/)). Raises the Tranco rate limit for the rank check                                                                                               |
 | `TRANCO_USERNAME`      | Your Tranco account email, used with the key above                                                                                                                                                    |
-| `GITHUB_TOKEN`         | A GitHub token ([get here](https://github.com/settings/tokens)). Raises the GitHub rate limit for the social presence check                                                                           |
+| `GITHUB_TOKEN`         | A GitHub token ([get here](https://github.com/settings/tokens)). Raises the GitHub rate limit for the social presence check, and runs GitHub code search in leak hunt                                 |
 | `CERTSPOTTER_TOKEN`    | A CertSpotter API token ([get here](https://sslmate.com/certspotter/api/)). Raises the CertSpotter rate limit for the subdomains check                                                                |
+| `GOOGLE_CSE_KEY`       | A Google Programmable Search JSON API key ([get here](https://developers.google.com/custom-search/v1/overview)). Runs Google dork queries in leak hunt                                                |
+| `GOOGLE_CSE_ID`        | Your Programmable Search Engine ID, used with the key above                                                                                                                                           |
+| `BRAVE_API_KEY`        | A Brave Search API key ([get here](https://brave.com/search/api/)). Runs Brave dork queries in leak hunt                                                                                              |
 
 **Configuration Settings**:
 
-| Key                        | Value                                                                      |
-| -------------------------- | -------------------------------------------------------------------------- |
-| `PORT`                     | Port to serve the API, when running server.js (e.g. `3000`)                |
-| `API_ENABLE_RATE_LIMIT`    | Enable rate-limiting for the /api endpoints (e.g. `true`)                  |
-| `PUBLIC_API_TIMEOUT_LIMIT` | The timeout limit for API requests, in milliseconds (e.g. `25000`)         |
-| `API_CORS_ORIGIN`          | Enable CORS, by setting your allowed hostname(s) here (e.g. `example.com`) |
-| `API_DISABLED_CHECKS`      | Comma-separated list of checks to disable (e.g. `trace-route,ports`)       |
-| `API_ENABLED_CHECKS`       | If set, only these checks will run (e.g. `get-ip,ssl,dns,headers`)         |
-| `API_BLOCKED_HOSTS`        | Hosts that must never be scanned (e.g. `lan.example.com,192.168.0.0/16`)   |
+| Key                        | Value                                                                                               |
+| -------------------------- | --------------------------------------------------------------------------------------------------- |
+| `PORT`                     | Port to serve the API, when running server.js (e.g. `3000`)                                         |
+| `API_ENABLE_RATE_LIMIT`    | Enable rate-limiting for the /api endpoints (e.g. `true`)                                           |
+| `PUBLIC_API_TIMEOUT_LIMIT` | The timeout limit for API requests, in milliseconds (e.g. `25000`)                                  |
+| `API_CORS_ORIGIN`          | Enable CORS, by setting your allowed hostname(s) here (e.g. `example.com`)                          |
+| `API_DISABLED_CHECKS`      | Comma-separated list of checks to disable (e.g. `trace-route,ports`)                                |
+| `API_ENABLED_CHECKS`       | If set, only these checks will run (e.g. `get-ip,ssl,dns,headers`)                                  |
+| `API_BLOCKED_HOSTS`        | Hosts that must never be scanned (e.g. `lan.example.com,192.168.0.0/16`)                            |
 | `API_ALLOW_ACTIVE_CHECKS`  | Set to `true` to enable intrusive checks (`nmap`, `exposed-files`, `http-methods`, `zone-transfer`) |
-| `SCANNER_USER_AGENT`       | Custom User-Agent sent to scanned sites, so their WAF can allowlist this instance |
-| `CHROME_PATH`              | The path the Chromium executable (e.g. `/usr/bin/chromium`)                |
-| `DISABLE_GUI`              | Disable the GUI, and only serve the API (e.g. `false`)                     |
-| `PUBLIC_API_ENDPOINT`      | The endpoint for the API, either local or remote (e.g. `/api`)             |
+| `SCANNER_USER_AGENT`       | Custom User-Agent sent to scanned sites, so their WAF can allowlist this instance                   |
+| `CHROME_PATH`              | The path the Chromium executable (e.g. `/usr/bin/chromium`)                                         |
+| `DISABLE_GUI`              | Disable the GUI, and only serve the API (e.g. `false`)                                              |
+| `PUBLIC_API_ENDPOINT`      | The endpoint for the API, either local or remote (e.g. `/api`)                                      |
 
 All values are optional.
 

@@ -1,28 +1,10 @@
 import middleware from './_common/middleware.js';
 import { httpGet, isBotCheck, BOT_CHECK_ERROR } from './_common/http.js';
 import { upstreamError } from './_common/upstream.js';
+import { PATTERNS, mask } from './_common/leak-rules.js';
 
 const MAX_SCRIPTS = 10;
 const MAX_BYTES = 2 * 1024 * 1024;
-
-const PATTERNS = [
-  { type: 'AWS access key ID', re: /\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g },
-  { type: 'Google API key', re: /\bAIza[0-9A-Za-z_-]{35}\b/g },
-  { type: 'Stripe live secret key', re: /\b(?:sk|rk)_live_[0-9A-Za-z]{20,}\b/g },
-  {
-    type: 'GitHub token',
-    re: /\b(?:ghp|gho|ghu|ghs|ghr)_[0-9A-Za-z]{36}\b|\bgithub_pat_[0-9A-Za-z_]{60,}\b/g,
-  },
-  { type: 'Slack token', re: /\bxox[abposr]-[0-9A-Za-z-]{10,}\b/g },
-  {
-    type: 'Private key',
-    re: /-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY( BLOCK)?-----/g,
-  },
-  { type: 'JWT', re: /\beyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b/g },
-];
-
-// Never return the secret itself, just enough to recognise it
-const mask = (s) => `${s.slice(0, 4)}****`;
 
 const scan = (content, file) => {
   const out = [];
